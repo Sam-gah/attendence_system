@@ -69,16 +69,59 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
               ],
             ),
             const Divider(height: 32),
-            FutureBuilder<Duration>(
-              future: _timeTrackingService.getTotalTimeToday(),
+            FutureBuilder<Map<String, dynamic>>(
+              future: _getEmployeeStats(),
               builder: (context, snapshot) {
-                final totalHours = snapshot.data?.inHours ?? 0;
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                final stats = snapshot.data ?? {
+                  'totalHours': 0,
+                  'tasksCompleted': 0,
+                  'daysAbsent': 0,
+                  'productivity': 0,
+                };
+                
+                return Column(
                   children: [
-                    _buildStatItem('Today', '$totalHours hrs'),
-                    _buildStatItem('This Week', '${totalHours * 5} hrs'),
-                    _buildStatItem('This Month', '${totalHours * 20} hrs'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatItem('Total Hours', '${stats['totalHours']} hrs', Icons.access_time),
+                        _buildStatItem('Tasks Done', '${stats['tasksCompleted']}', Icons.task_alt),
+                        _buildStatItem('Days Absent', '${stats['daysAbsent']}', Icons.event_busy),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Productivity', style: Theme.of(context).textTheme.bodyLarge),
+                              Text('${stats['productivity']}%', style: Theme.of(context).textTheme.bodyLarge),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          LinearProgressIndicator(
+                            value: stats['productivity'] / 100,
+                            minHeight: 8,
+                            backgroundColor: Colors.grey[200],
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              stats['productivity'] > 75
+                                  ? Colors.green
+                                  : stats['productivity'] > 50
+                                      ? Colors.orange
+                                      : Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 );
               },
@@ -253,7 +296,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                   const SizedBox(height: 8),
                 ],
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -262,37 +305,187 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
 
   Widget _buildTimelineCard(Map<String, dynamic> record) {
     final timestamp = DateTime.parse(record['timestamp']);
-    final action = record['action'];
-
+    final time = DateFormat('HH:mm').format(timestamp);
+    final action = record['action'] as String;
+    
+    // Extract project and task information if available
+    final String project = record['project'] as String? ?? 'Not specified';
+    final String task = record['task'] as String? ?? 'Not specified';
+    final String? taskLink = record['taskLink'] as String?;
+    final String? duration = record['duration'] != null ? '${record['duration']} min' : null;
+    
+    // Determine icon and color based on action type
+    IconData actionIcon;
+    Color iconColor;
+    String actionText;
+    
+    switch (action) {
+      case 'clock_in':
+        actionIcon = Icons.login;
+        iconColor = Colors.green;
+        actionText = 'Started working';
+        break;
+      case 'clock_out':
+        actionIcon = Icons.logout;
+        iconColor = Colors.red;
+        actionText = 'Finished working';
+        break;
+      case 'break_start':
+        actionIcon = Icons.coffee;
+        iconColor = Colors.orange;
+        actionText = 'Started break';
+        break;
+      case 'break_end':
+        actionIcon = Icons.coffee_outlined;
+        iconColor = Colors.blue;
+        actionText = 'Ended break';
+        break;
+      default:
+        actionIcon = Icons.device_unknown;
+        iconColor = Colors.grey;
+        actionText = action;
+    }
+    
+    // Determine priority color if available
+    final String priority = record['priority'] as String? ?? 'Medium';
+    final Color priorityColor = _getPriorityColor(priority);
+    
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: _getActionColor(action),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(_getActionIcon(action), color: Colors.white),
-        ),
-        title: Text(action),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(DateFormat('HH:mm').format(timestamp)),
-            if (record['project'] != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Project: ${record['project']}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        children: [
+          // Header with time and action
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
               ),
-            ],
-            if (record['task'] != null) ...[
-              const SizedBox(height: 2),
-              Text('Task: ${record['task']}'),
-            ],
-          ],
-        ),
+            ),
+            child: Row(
+              children: [
+                Icon(actionIcon, color: iconColor, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  time,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(actionText),
+                const Spacer(),
+                if (duration != null)
+                  Row(
+                    children: [
+                      const Icon(Icons.timer_outlined, size: 16),
+                      const SizedBox(width: 4),
+                      Text(duration),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          
+          // Project and task details
+          if (action == 'clock_in' || action == 'clock_out')
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Project
+                  Row(
+                    children: [
+                      const Icon(Icons.folder_outlined, size: 16, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Project:',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          project,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Task with priority indicator
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.task_alt, size: 16, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Task:',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              margin: const EdgeInsets.only(right: 8, top: 4),
+                              decoration: BoxDecoration(
+                                color: priorityColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                task,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Task link if available
+                  if (taskLink != null && taskLink.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: InkWell(
+                        onTap: () {
+                          // TODO: Open task link
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(Icons.link, size: 16, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                taskLink,
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -303,45 +496,68 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     return '${hours}h ${minutes}m';
   }
 
-  Color _getActionColor(String action) {
-    switch (action) {
-      case 'clock_in':
-        return Colors.green;
-      case 'clock_out':
-        return Colors.red;
-      case 'break_start':
-        return Colors.orange;
-      case 'break_end':
+  Color _getPriorityColor(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'low':
         return Colors.blue;
+      case 'medium':
+        return Colors.green;
+      case 'high':
+        return Colors.orange;
+      case 'urgent':
+        return Colors.red;
       default:
         return Colors.grey;
     }
   }
 
-  IconData _getActionIcon(String action) {
-    switch (action) {
-      case 'clock_in':
-        return Icons.login;
-      case 'clock_out':
-        return Icons.logout;
-      case 'break_start':
-        return Icons.coffee;
-      case 'break_end':
-        return Icons.coffee_outlined;
-      default:
-        return Icons.access_time;
-    }
-  }
-
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildStatItem(String label, String value, IconData icon) {
     return Column(
       children: [
-        Text(
-          value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Icon(icon, color: Theme.of(context).primaryColor),
+        const SizedBox(height: 4),
+        Text(value, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
+  }
+  
+  Future<Map<String, dynamic>> _getEmployeeStats() async {
+    try {
+      // This would normally come from an API or database
+      // For now, we'll create some mock data
+      
+      // Get time tracking data from the service
+      final totalTimeToday = await _timeTrackingService.getTotalTimeToday();
+      final dailyRecords = await _timeTrackingService.getDailyRecords();
+      
+      // Count unique tasks
+      final uniqueTasks = <String>{};
+      for (final record in dailyRecords) {
+        if (record.containsKey('task') && record['task'] != null) {
+          uniqueTasks.add(record['task'] as String);
+        }
+      }
+      
+      // Calculate productivity (based on time worked vs expected 8 hours)
+      final totalMinutesWorked = totalTimeToday.inMinutes;
+      final expectedMinutes = 8 * 60; // 8 hours expected workday
+      final productivity = (totalMinutesWorked / expectedMinutes * 100).clamp(0, 100).toInt();
+      
+      return {
+        'totalHours': (totalTimeToday.inMinutes / 60).ceil(),
+        'tasksCompleted': uniqueTasks.length,
+        'daysAbsent': 2, // Mock data for demonstration
+        'productivity': productivity,
+      };
+    } catch (e) {
+      print('Error getting employee stats: $e');
+      return {
+        'totalHours': 0,
+        'tasksCompleted': 0,
+        'daysAbsent': 0,
+        'productivity': 0,
+      };
+    }
   }
 }

@@ -21,7 +21,7 @@ class ProjectTimelineView extends StatelessWidget {
           isLast: index == sortedProjects.length - 1,
           indicatorStyle: IndicatorStyle(
             width: 20,
-            color: _getStatusColor(project.status),
+            color: Colors.blue,
           ),
           endChild: Card(
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -70,24 +70,24 @@ class ProjectTimelineView extends StatelessWidget {
         LinearProgressIndicator(
           value: progress.clamp(0, 1),
           backgroundColor: Colors.grey[200],
-          valueColor: AlwaysStoppedAnimation(_getStatusColor(project.status)),
+          valueColor: AlwaysStoppedAnimation(Colors.blueGrey),
         ),
       ],
     );
   }
 
-  Color _getStatusColor(ProjectStatus status) {
-    switch (status) {
-      case ProjectStatus.planning:
-        return Colors.grey;
-      case ProjectStatus.inProgress:
-        return Colors.blue;
-      case ProjectStatus.onHold:
-        return Colors.orange;
-      case ProjectStatus.completed:
-        return Colors.green;
-      case ProjectStatus.cancelled:
-        return Colors.red;
-    }
-  }
+  // Color _getStatusColor(ProjectStatus status) {
+  //   switch (status) {
+  //     case ProjectStatus.planning:
+  //       return Colors.grey;
+  //     case ProjectStatus.inProgress:
+  //       return Colors.blue;
+  //     case ProjectStatus.onHold:
+  //       return Colors.orange;
+  //     case ProjectStatus.completed:
+  //       return Colors.green;
+  //     case ProjectStatus.cancelled:
+  //       return Colors.red;
+  //   }
+  // }
 } 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/project.dart';
 import '../../models/employee.dart';
 import 'project_board_view.dart';
-import 'project_list_view.dart';
+// import 'project_list_view.dart';
 import 'project_timeline_view.dart';
 import 'project_calendar_view.dart';
 
@@ -131,8 +131,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   Widget _buildCurrentView() {
     switch (_currentView) {
-      case ProjectView.list:
-        return ProjectListView(projects: widget.projects);
+        // case ProjectView.list:
+        //   return ProjectListView(projects: widget.projects);
       case ProjectView.board:
         return ProjectBoardView(projects: widget.projects);
       case ProjectView.timeline:

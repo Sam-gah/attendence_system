@@ -72,7 +72,7 @@ class ProjectCalendarView extends StatelessWidget {
             title: Text(project.name),
             subtitle: Text('Due: ${project.deadline.toString().split(' ')[0]}'),
             leading: CircleAvatar(
-              backgroundColor: _getStatusColor(project.status),
+              backgroundColor: Colors.blue,
               child: Text(project.name[0]),
             ),
           );
@@ -81,18 +81,18 @@ class ProjectCalendarView extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(ProjectStatus status) {
-    switch (status) {
-      case ProjectStatus.planning:
-        return Colors.grey;
-      case ProjectStatus.inProgress:
-        return Colors.blue;
-      case ProjectStatus.onHold:
-        return Colors.orange;
-      case ProjectStatus.completed:
-        return Colors.green;
-      case ProjectStatus.cancelled:
-        return Colors.red;
-    }
-  }
+  // Color _getStatusColor(ProjectStatus status) {
+  //   switch (status) {
+  //     case ProjectStatus.planning:
+  //       return Colors.grey;
+  //     case ProjectStatus.inProgress:
+  //       return Colors.blue;
+  //     case ProjectStatus.onHold:
+  //       return Colors.orange;
+  //     case ProjectStatus.completed:
+  //       return Colors.green;
+  //     case ProjectStatus.cancelled:
+  //       return Colors.red;
+  //   }
+  // }
 } 

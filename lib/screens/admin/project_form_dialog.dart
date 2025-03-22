@@ -247,6 +247,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
         clientName: _clientNameController.text,
         teamMembers: _selectedTeamMembers,
         projectManager: _projectManager!,
+        progress: 0.0,
         budget: double.parse(_budgetController.text),
         technologies: _technologies,
         milestones: widget.project?.milestones ?? [],

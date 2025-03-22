@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/project.dart';
 import '../../models/employee.dart';
+import '../../roles/role.dart';
 import './project_form_dialog.dart';
 import 'team_management_dialog.dart';
 import 'delete_confirmation_dialog.dart';
@@ -182,9 +183,8 @@ class _ProjectManagementState extends State<ProjectManagement> {
                         email: '',
                         phone: '',
                         position: '',
-                        role: EmployeeRole.Developer,
                         department: '',
-                        designation: '',
+                        role: Role.employee,
                         employmentType: EmploymentType.fullTime,
                         workType: '',
                         assignedProjects: [],
@@ -280,6 +280,8 @@ class _ProjectManagementState extends State<ProjectManagement> {
 
   Icon _getProjectStatusIcon(ProjectStatus status) {
     switch (status) {
+      case ProjectStatus.notStarted:
+        return const Icon(Icons.schedule, color: Colors.grey);
       case ProjectStatus.planning:
         return const Icon(Icons.schedule, color: Colors.blue);
       case ProjectStatus.inProgress:

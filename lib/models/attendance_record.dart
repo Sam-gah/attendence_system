@@ -1,8 +1,8 @@
 class AttendanceRecord {
   final String id;
   final String employeeId;
-  final DateTime clockIn;
-  final DateTime? clockOut;
+  DateTime clockIn;
+  DateTime? clockOut;
   final Duration breakTime;
   final Duration totalTime;
 

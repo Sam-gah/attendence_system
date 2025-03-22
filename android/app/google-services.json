@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "360438571030",
+    "project_id": "attendence-bichitras-c89ef",
+    "storage_bucket": "attendence-bichitras-c89ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360438571030:android:e7dae32ac676a708ed1537",
+        "android_client_info": {
+          "package_name": "com.example.attendence_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360438571030-30cte98fd04498mh5lucoclof12otem6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARxDVnO-aCm0csrfQLYye1KPGAHQZNl0w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360438571030-30cte98fd04498mh5lucoclof12otem6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "360438571030-5e6534nmjofoinstb60spbejvc4iq2ln.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.attendenceSystem"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/employee.dart';
-import '../../services/auth_service.dart';
+import '../../roles/role.dart';
 
 class EmployeeFormDialog extends StatefulWidget {
   final Employee? employee;
@@ -24,7 +24,6 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
   late String _name;
   late String _email;
   late String _phone;
-  late EmployeeRole _role;
   late String _department;
   late String _designation;
   late EmploymentType _employmentType;
@@ -39,11 +38,8 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
     _name = widget.employee?.name ?? '';
     _email = widget.employee?.email ?? '';
     _phone = widget.employee?.phone ?? '';
-    _role = widget.employee?.role ?? EmployeeRole.Developer;
     _department = widget.employee?.department ?? '';
-    _designation = widget.employee?.designation ?? '';
-    _employmentType =
-        widget.employee?.employmentType ?? EmploymentType.fullTime;
+    _employmentType = widget.employee?.employmentType ?? EmploymentType.fullTime;
     _workType = widget.employee?.workType ?? 'onsite';
     _reportingTo = widget.employee?.reportingTo ?? '';
     _joiningDate = widget.employee?.joiningDate ?? DateTime.now();
@@ -83,22 +79,7 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
                         value?.isEmpty ?? true ? 'Please enter email' : null,
                 onSaved: (value) => _email = value!,
               ),
-              DropdownButtonFormField<EmployeeRole>(
-                value: _role,
-                decoration: const InputDecoration(labelText: 'Role'),
-                items:
-                    EmployeeRole.values
-                        .map(
-                          (role) => DropdownMenuItem(
-                            value: role,
-                            child: Text(role.toString().split('.').last),
-                          ),
-                        )
-                        .toList(),
-                onChanged: (value) => setState(() => _role = value!),
-                validator:
-                    (value) => value == null ? 'Please select a role' : null,
-              ),
+
               TextFormField(
                 initialValue: _phone,
                 decoration: const InputDecoration(labelText: 'Phone'),
@@ -206,14 +187,13 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
           email: _email,
           phone: _phone,
           position: _designation,
-          role: _role,
           department: _department,
-          designation: _designation,
           employmentType: _employmentType,
           workType: _workType,
           assignedProjects: widget.employee?.assignedProjects ?? [],
           reportingTo: _reportingTo,
           joiningDate: _joiningDate,
+          role: Role.employee,
         ),
       );
       Navigator.pop(context);
