@@ -121,7 +121,7 @@ SOFTWARE.
 ## 📞 Contact & Support
 
 For questions, feedback, or support, please contact:
-- Email: your-email@example.com
+- Email: bichitras@bichitras.com
 - GitHub Issues: [https://github.com/Sam-gah/attendence_system/issues](https://github.com/Sam-gah/attendence_system/issues)
 
 ## 🙏 Acknowledgements
